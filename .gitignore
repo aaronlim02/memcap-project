@@ -1,0 +1,17 @@
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.webp
+*.safetensors
+*.bin
+*.pt
+*.pth
+venv/
+__pycache__/
+*.pyc
+.cache/
+logs/
+*.out
+*.err

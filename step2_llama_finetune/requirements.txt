@@ -1,0 +1,14 @@
+# Core ML logic
+transformers
+peft
+trl
+datasets
+accelerate
+bitsandbytes
+
+# Data & Utilities
+pandas
+tqdm
+Pillow
+easyocr
+bert-score
