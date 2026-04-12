@@ -145,28 +145,16 @@ sbatch job.sh
 
 ## Step 3 — Evaluation
 
-Two evaluation scripts are provided:
-
-### BERTScore + Qwen Judge (`eval.sh`)
-Evaluates captions using BERTScore and Qwen2.5-7B as a 1–3 scorer.
+### Qwen Judge on Llama Outputs (`job_judge_qwen_on_llama.sh`)
+Evaluates Llama-generated captions using Qwen2.5-14B-Instruct as judge with multi-run majority voting to reduce position bias. Runs 3 shuffled evaluations per meme and takes the majority vote.
 
 ```bash
 cd step3_eval/
-sbatch eval.sh
+sbatch job_judge_qwen_on_llama.sh
 ```
 
-**Output:** `~/4248-groupProj/predictions.json`
-
-### Llama Judge with Voting (`job_judge.sh`)
-More robust evaluation using Llama-3.1-8B as judge with multi-run majority voting to reduce position bias. Runs 3 shuffled evaluations per meme and takes the majority vote.
-
-```bash
-cd step3_eval/
-sbatch job_judge.sh
-```
-
-**Input:** `ketchup_enriched_test.json` (from Step 1)
-**Output:** `judge_results.csv` with columns: `judge_best_option`, `judge_best_source`, `judge_explanation`, `judge_vote_counts`
+**Input:** `outputs/judge_inputs/llama_generated_candidates_randomized.csv` (Llama-generated candidates)
+**Output:** `outputs/judge_results/qwen_judges_llama_random.csv` with columns: `judge_best_option`, `judge_best_source`, `judge_explanation`, `judge_vote_counts`
 
 ---
 

@@ -22,7 +22,7 @@ nvidia-smi
 # ── Set paths ────────────────────────────────────────────────────────────
 export WORKING_DIR="$HOME/paligemma_output"
 export DATA_DIR="$HOME/data/paligemma-training/data/ketchup"
-export HF_TOKEN="your_hf_token_here"   # ← paste your HuggingFace token here
+export HF_TOKEN="your_hf_token_here"
 export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 
 mkdir -p $WORKING_DIR
