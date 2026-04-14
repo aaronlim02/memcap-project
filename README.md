@@ -124,9 +124,61 @@ sbatch infer_ketchup.sh
 
 ---
 
+## Step 1.5 — Qwen2.5 Fine-tuning (Kaggle)
+
+This step runs on Kaggle and fine-tunes `Qwen/Qwen2.5-VL-7B-Instruct` on the KETCHUP/MultiMM advertisement dataset for metaphor detection and extraction. It then uses the fine-tuned model to enrich MemeCap with `Vehicle` / `Target` metaphor annotations.
+
+### Inputs
+- `multimm_path`: `/kaggle/input/datasets/{username}/multimm/EN.xlsx`
+- `multimm_images_path`: `/kaggle/input/datasets/{username}/multimm-images/imgs_EN/`
+- `memecap_path`: `/kaggle/input/datasets/{username}/memecap-images/trainval_image/`
+- `trainval_file`: original `dataset/memes-trainval.json`
+
+### Outputs
+- Fine-tuned LoRA model folder: `./qwen2.5-vl-metaphor-lora-save`
+- Inference mapping: `updated_memecap.json`
+- Final enriched MemeCap dataset: `updated_memes-trainval.json`
+
+### Workflow
+1. Train the model
+   - Run the notebook section through model training and save the trained LoRA model.
+   - The model checkpoint is saved at `./qwen2.5-vl-metaphor-lora-save`.
+
+2. Final Evaluation
+  - Load the saved model and processor from `./qwen2.5-vl-metaphor-lora-save`.
+  - Run the final evaluation section in the notebook:
+    - load the trained LoRA model
+    - run inference on the held-out test split
+    - compute SBERT-based metaphor similarity using `compute_single_score(...)`
+
+  - Outputs:
+    - average SBERT metaphor score for the fine-tuned model
+    - per-sample predictions vs ground truth
+
+  - Baseline comparison
+    - To measure the baseline, run the same evaluation code using the base Qwen2.5-VL model without LoRA fine-tuning.
+    - Keep the prompt, dataset, and SBERT scoring the same.
+    - This gives a direct comparison between:
+      - baseline score (untrained base model)
+      - trained score (fine-tuned Qwen2.5-VL + LoRA)
+> Note: the baseline helps verify that the Qwen2.5 fine-tuning is actually improving metaphor extraction, not just matching dataset formatting.
+
+3. Inference
+   - Run the “Using the finetuned Qwen2.5-VL model for inference” section.
+   - This writes `updated_memecap.json` with predicted metaphors for MemeCap images.
+
+4. Update MemeCap dataset
+   - Run the helper function to convert `updated_memecap.json` + `memes-trainval.json` into:
+     - `updated_memes-trainval.json`
+
+### Notes
+- This step is Kaggle-specific, while the rest of the pipeline runs on the cluster.
+- The output `updated_memes-trainval.json` is the enriched dataset used by Step 2 and Step 3.
+- The Qwen model expects output in the format: `Vehicle: <vehicle> | Target: <target>`
+
 ## Step 2 — Llama 3.2 Fine-tuning
 
-Fine-tunes `meta-llama/Llama-3.2-3B-Instruct` on the ketchup-enriched MemeCap dataset to generate meme captions. The prompt includes title, image description, OCR text, and metaphors extracted in Step 1.
+Fine-tunes `meta-llama/Llama-3.2-3B-Instruct` on the ketchup-enriched MemeCap dataset to generate meme captions. The prompt includes title, image description, OCR text, and metaphors extracted in Step 1 or Step 1.5.
 
 **Setup (first time only — handled automatically by job.sh):**
 ```bash
